@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Porcupine v1.9.5 + SpeechRecognition</title>
+</head>
+<body>
+  <h1>Say “jarvis” to start listening...</h1>
+
+  <script type="module">
+    import {
+      PorcupineWorkerFactory,
+      BuiltInKeyword
+    } from '@picovoice/porcupine-web';
+    import { WebVoiceProcessor } from '@picovoice/web-voice-processor';
+
+    // 1️⃣ Callback when hotword is detected
+    function onHotwordDetected(keywordLabel) {
+      console.log(`Hotword detected: ${keywordLabel}`);
+      // start speech recognition
+      recognizer.start();
+    }
+
+    // 2️⃣ Set up Web Speech API recognizer
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognizer = new SpeechRecognition();
+    recognizer.continuous = false;
+    recognizer.interimResults = false;
+    recognizer.lang = 'en-US';
+
+    recognizer.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      console.log('You said:', transcript);
+      // do something with transcript...
+    };
+    recognizer.onerror = (err) => {
+      console.error('Recognition error:', err);
+    };
+
+    (async () => {
+      // 3️⃣ Create Porcupine worker for built‑in “jarvis” keyword
+      const porcupineWorker = await PorcupineWorkerFactory.create(
+        [BuiltInKeyword.JARVIS],
+        onHotwordDetected
+      );
+
+      // 4️⃣ Hook Porcupine into the mic via WebVoiceProcessor
+      await WebVoiceProcessor.subscribe(porcupineWorker);
+
+      // ⚠️ When done, to clean up:
+      // await WebVoiceProcessor.unsubscribe(porcupineWorker);
+      // porcupineWorker.terminate();
+    })().catch(console.error);
+  </script>
+</body>
+</html>
