@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@picovoice/porcupine-node": "^3.0.6",
+    "express": "^4.21.2",
+    "node-fetch": "^2.7.0",
+    "node-record-lpcm16": "^1.0.1",
+    "openai": "^4.12.4"
+  },
+  "scripts": {
+    "dev": "node app.js"
+  }
+}
